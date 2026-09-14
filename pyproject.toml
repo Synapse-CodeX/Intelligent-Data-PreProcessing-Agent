@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "intelligent-data-pre-processing-agent"
+version = "0.1.0"
+description = "An intelligent agent for automated data quality analysis and machine learning preprocessing."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+
+
+[tool.pytest.ini_options]
+pythonpath = ["backend"]
+testpaths = ["backend/tests"]
+addopts = "-v"
+
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+extend-exclude = [
+    ".venv",
+    "notebooks",
+    "experiments",
+]
+
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "B",
+    "UP",
+]
+
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
