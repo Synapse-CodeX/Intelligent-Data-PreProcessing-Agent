@@ -1,13 +1,20 @@
 import numpy as np
 import pandas as pd
 from app.preprocessing.encoding import CategoricalEncoder
+from app.preprocessing.feature_engineering import (
+    NumericInteractionTransformer,
+)
 from app.preprocessing.feature_selection import ConstantFeatureRemover
 from app.preprocessing.imputation import MissingValueImputer
 from app.preprocessing.outlier_handling import IQRWinsorizer
-from app.preprocessing.pipeline_builder import PreprocessingPipeline
+from app.preprocessing.pipeline_builder import (
+    PreprocessingPipeline,
+    build_pipeline,
+)
 from app.preprocessing.pipeline_executor import PipelineExecutor
 from app.preprocessing.scaling import NumericalScaler
 from app.preprocessing.transformations import LogTransformer
+from app.schemas.preprocessing import PreprocessingConfig
 
 
 def test_missing_value_imputer():
@@ -173,4 +180,108 @@ def test_pipeline_executor():
     assert result.shape[0] == 3
     assert summary["original_rows"] == 3
     assert summary["final_rows"] == 3
+    assert len(summary["pipeline"]) == 2
+    assert summary["original_missing_values"] == 1
+    assert summary["final_missing_values"] == 0
+
+
+def test_numeric_interaction_transformer():
+    df = pd.DataFrame(
+        {
+            "income": [10.0, 20.0],
+            "purchase": [2.0, 3.0],
+        }
+    )
+
+    transformer = NumericInteractionTransformer(columns=["income", "purchase"])
+
+    result = transformer.fit_transform(df)
+
+    assert "income_x_purchase" in result.columns
+    assert result.loc[0, "income_x_purchase"] == 20.0
+    assert result.loc[1, "income_x_purchase"] == 60.0
+
+
+def test_preprocessing_config():
+    config = PreprocessingConfig(
+        imputation={
+            "enabled": True,
+            "numerical_strategy": "median",
+        },
+        encoding={
+            "enabled": True,
+            "drop_first": True,
+        },
+        scaling={
+            "enabled": True,
+            "method": "standard",
+        },
+    )
+
+    assert config.imputation.enabled is True
+    assert config.encoding.enabled is True
+    assert config.scaling.method == "standard"
+
+
+def test_build_pipeline_from_config():
+    config = PreprocessingConfig(
+        imputation={
+            "enabled": True,
+        },
+        encoding={
+            "enabled": True,
+        },
+        scaling={
+            "enabled": True,
+        },
+    )
+
+    pipeline = build_pipeline(config)
+
+    assert len(pipeline) == 3
+    assert pipeline.get_config()[0]["name"] == ("missing_value_imputation")
+    assert pipeline.get_config()[1]["name"] == ("categorical_encoding")
+    assert pipeline.get_config()[2]["name"] == ("numerical_scaling")
+
+
+def test_build_pipeline_from_dictionary():
+    config = {
+        "imputation": {
+            "enabled": True,
+        },
+        "encoding": {
+            "enabled": True,
+        },
+    }
+
+    pipeline = build_pipeline(config)
+
+    assert len(pipeline) == 2
+
+
+def test_configured_pipeline_execution():
+    df = pd.DataFrame(
+        {
+            "age": [20.0, 30.0, None],
+            "city": ["Kolkata", "Delhi", "Kolkata"],
+        }
+    )
+
+    config = PreprocessingConfig(
+        imputation={
+            "enabled": True,
+        },
+        encoding={
+            "enabled": True,
+        },
+    )
+
+    pipeline = build_pipeline(config)
+
+    executor = PipelineExecutor(pipeline)
+
+    result, summary = executor.execute(df)
+
+    assert result.isna().sum().sum() == 0
+    assert result.shape[0] == 3
     assert len(summary["pipeline"]) == 2
