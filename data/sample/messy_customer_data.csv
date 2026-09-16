@@ -1,0 +1,16 @@
+customer_id,name,age,income,city,gender,purchase_amount
+1,John Smith,25,45000,Kolkata,Male,1200.50
+2,Alice Brown,32,62000,Mumbai,Female,2500.00
+3,Bob Wilson,,55000,Delhi,Male,1800.75
+4,Emma Davis,29,,Kolkata,Female,950.00
+5,John Smith,25,45000,Kolkata,Male,1200.50
+6,Charlie Lee,150,72000,Bangalore,Male,3200.00
+7,Olivia Martin,41,85000,Mumbai,Female,
+8,David Clark,35,68000,,Male,2100.25
+9,Sophia Hall,27,58000,Delhi,Female,1750.00
+10,Daniel Young,abc,61000,Kolkata,Male,1950.50
+11,Emma Davis,29,,Kolkata,Female,950.00
+12,Liam Harris,31,59000,Mumbai,,2200.00
+13,Ava Lewis,22,48000,Delhi,Female,-500.00
+14,Noah Walker,28,51000,Bangalore,Male,1600.00
+15,Mia Allen,30,64000,mumbai,Female,2700.00
