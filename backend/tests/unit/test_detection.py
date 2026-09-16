@@ -128,3 +128,31 @@ def test_detector_engine():
     assert "missing_values" in issue_types
     assert "categorical_inconsistency" in issue_types
     assert "constant_feature" in issue_types
+
+
+def test_outlier_detector_detects_numeric_like_object_column():
+    df = pd.DataFrame(
+        {
+            "age": [
+                "20",
+                "21",
+                "22",
+                "23",
+                "24",
+                "25",
+                "26",
+                "27",
+                "28",
+                "150",
+                "abc",
+            ]
+        }
+    )
+
+    issues = OutlierDetector().detect(df)
+
+    outlier_issues = [issue for issue in issues if issue.issue_type == "outliers"]
+
+    assert len(outlier_issues) == 1
+    assert outlier_issues[0].column == "age"
+    assert outlier_issues[0].affected_count == 1

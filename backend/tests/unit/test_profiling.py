@@ -1,9 +1,10 @@
 from pathlib import Path
 
+import pandas as pd
 from app.ingestion.loader import load_dataset
 from app.profiling.column_profiler import profile_columns
 from app.profiling.correlations import calculate_correlations
-from app.profiling.data_types import infer_data_types
+from app.profiling.data_types import infer_data_types, infer_semantic_types
 from app.profiling.distributions import analyze_distributions
 from app.profiling.profiler import profile_dataset
 from app.profiling.statistics import calculate_statistics
@@ -52,7 +53,7 @@ def test_calculate_statistics():
 
     statistics = calculate_statistics(df)
 
-    assert "age" not in statistics
+    assert "age" in statistics
     assert "income" in statistics
     assert "purchase_amount" in statistics
     assert "city" not in statistics
@@ -68,7 +69,7 @@ def test_analyze_distributions():
 
     distributions = analyze_distributions(df)
 
-    assert "age" not in distributions
+    assert "age" in distributions
     assert "income" in distributions
     assert "purchase_amount" in distributions
     assert "skewness" in distributions["income"]
@@ -103,3 +104,45 @@ def test_profile_dataset_contains_all_sections():
     }
 
     assert expected_sections.issubset(profile.keys())
+
+
+def test_infer_semantic_types():
+    df = pd.DataFrame(
+        {
+            "age": ["20", "25", "30", "35"],
+            "city": ["Kolkata", "Delhi", "Mumbai", "Kolkata"],
+        }
+    )
+
+    semantic_types = infer_semantic_types(df)
+
+    assert semantic_types["age"] == "numeric"
+    assert semantic_types["city"] == "categorical"
+
+
+def test_infer_semantic_types_with_dirty_numeric_column():
+    df = pd.DataFrame(
+        {
+            "age": ["20", "25", "abc", "30", "35"],
+        }
+    )
+
+    semantic_types = infer_semantic_types(df)
+
+    assert semantic_types["age"] == "numeric"
+
+
+def test_infer_semantic_types_datetime():
+    df = pd.DataFrame(
+        {
+            "date": [
+                "2026-01-01",
+                "2026-01-02",
+                "2026-01-03",
+            ],
+        }
+    )
+
+    semantic_types = infer_semantic_types(df)
+
+    assert semantic_types["date"] == "datetime"

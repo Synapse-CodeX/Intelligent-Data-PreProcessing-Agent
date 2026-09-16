@@ -1,6 +1,7 @@
 import pandas as pd
 
 from app.detection.base_detector import BaseDetector
+from app.profiling.data_types import infer_semantic_types
 from app.schemas.issues import DataQualityIssue
 
 
@@ -13,10 +14,18 @@ class OutlierDetector(BaseDetector):
         """Detect outliers using the IQR method."""
         issues = []
 
-        numeric_columns = df.select_dtypes(include="number").columns
+        semantic_types = infer_semantic_types(df)
 
-        for column in numeric_columns:
-            series = df[column].dropna()
+        for column in df.columns:
+            if semantic_types[column] != "numeric":
+                continue
+
+            numeric_series = pd.to_numeric(
+                df[column],
+                errors="coerce",
+            )
+
+            series = numeric_series.dropna()
 
             if series.empty:
                 continue
