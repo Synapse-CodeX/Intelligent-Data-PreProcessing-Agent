@@ -44,32 +44,18 @@ class AgentAction(BaseModel):
 class AgentState(BaseModel):
     """Shared state carried through the intelligent preprocessing workflow."""
 
-    dataset: DatasetContext = Field(
-        default_factory=DatasetContext
-    )
+    dataset: DatasetContext = Field(default_factory=DatasetContext)
 
-    issues: list[DataQualityIssue] = Field(
-        default_factory=list
-    )
+    issues: list[DataQualityIssue] = Field(default_factory=list)
 
-    quality: QualityContext = Field(
-        default_factory=QualityContext
-    )
+    quality: QualityContext = Field(default_factory=QualityContext)
 
-    actions: list[AgentAction] = Field(
-        default_factory=list
-    )
+    actions: list[AgentAction] = Field(default_factory=list)
 
-    validation_result: dict[str, Any] = Field(
-        default_factory=dict
-    )
+    validation_result: dict[str, Any] = Field(default_factory=dict)
 
-    execution_result: dict[str, Any] = Field(
-        default_factory=dict
-    )
+    execution_result: dict[str, Any] = Field(default_factory=dict)
 
-    messages: list[str] = Field(
-        default_factory=list
-    )
+    messages: list[str] = Field(default_factory=list)
 
     status: str = "initialized"
